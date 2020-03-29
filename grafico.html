@@ -19,7 +19,8 @@
                dias = dt.diff(dt_pais, 'days'); // Quantos dias ref Itália
                //console.log(dias, world_data[i]);
              }
-             arr_pais[dias] = world_data[i]["Deaths"];
+             idx_arr = arr_pais.length;
+             arr_pais[idx_arr] = world_data[i]["Deaths"];
              //console.log(world_data[i]["Deaths"], dt.format('YYYY-MM-DD'), dias);
          }
          var a = moment('21/2/2020', 'DD/MM/YYYY'); // Itália, a mais antiga
