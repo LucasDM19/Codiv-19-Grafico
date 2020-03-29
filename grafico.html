@@ -1,0 +1,148 @@
+<HTML>
+   <HEAD>
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.8.0/Chart.min.js"></script>
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/5.7.0/d3.min.js"></script>
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.9.0/moment.min.js"></script>
+   </HEAD>
+   <BODY>
+      <canvas id="myChart" width="600" height="400"></canvas>
+      <SCRIPT>
+         function validaPais(arr_pais, dt_pais){
+             var dt = moment( world_data[i]["Last_Update"] , 'YYYY-MM-DD');
+             if(!world_data[i].hasOwnProperty('Last_Update')){
+               dt = moment( world_data[i]["Last Update"] , 'YYYY-MM-DD');
+             }
+             var hoje = moment();
+             var dias = dt.diff(dt_pais, 'days'); // Quantos dias ref Itália
+             if(dias <0){
+               dt = moment( world_data[i]["Last_Update"] , 'M-DD-YY');
+               dias = dt.diff(dt_pais, 'days'); // Quantos dias ref Itália
+               //console.log(dias, world_data[i]);
+             }
+             arr_pais[dias] = world_data[i]["Deaths"];
+             //console.log(world_data[i]["Deaths"], dt.format('YYYY-MM-DD'), dias);
+         }
+         var a = moment('21/2/2020', 'DD/MM/YYYY'); // Itália, a mais antiga
+         var b = moment();
+         var dias = b.diff(a, 'days');
+         //console.log(dias);
+         arr_chama = Array();
+         qtd_dias = dias;
+         var dt_italia = moment('20/2/2020', 'DD/MM/YYYY'); // Itália, a mais antiga (Antes de começar morte) 
+         var a = moment('21/2/2020', 'DD/MM/YYYY'); // Itália, a mais antiga
+         var dt_alemanha = moment('09/3/2020', 'DD/MM/YYYY');
+         var dt_espanha = moment('03/3/2020', 'DD/MM/YYYY');
+         var dt_brasil = moment('17/3/2020', 'DD/MM/YYYY');
+         for(x=0; x<qtd_dias; x++){
+            data_x = dt_italia.add(1, 'days').format("MM-DD-YYYY");
+            arr_chama[x] = d3.csv('https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_daily_reports/'+data_x+'.csv')
+         }
+         Promise.all(arr_chama).then(function(files) {
+            arr_italia = Array();
+            arr_alemanha = Array();
+            arr_espanha = Array();
+            arr_brasil = Array();
+            for(j=0; j<files.length; j++){
+               world_data = files[j]
+               for(i=0; i<world_data.length; i++){
+                 //console.log("Passou!", world_data[i]);
+                 if(world_data[i]["Deaths"] != 0 && (world_data[i]["Country_Region"] == "Italy" || world_data[i]["Country/Region"] == "Italy")) {
+                   validaPais(arr_italia, a);
+                 }
+                 if(world_data[i]["Deaths"] != 0 && (world_data[i]["Country_Region"] == "Germany" || world_data[i]["Country/Region"] == "Germany")) {
+                   validaPais(arr_alemanha, dt_alemanha);
+                 }
+                 if(world_data[i]["Deaths"] != 0 && (world_data[i]["Country_Region"] == "Spain" || world_data[i]["Country/Region"] == "Spain")) {
+                   validaPais(arr_espanha, dt_espanha);
+                 }
+                 if(world_data[i]["Deaths"] != 0 && (world_data[i]["Country_Region"] == "Brazil" || world_data[i]["Country/Region"] == "Brazil")) {
+                   validaPais(arr_brasil, dt_brasil);
+                 }
+               }
+            }
+            //console.log(arr_italia);
+            arr_eua = [1,1,6,9,11,12,15,19,22,26,30,38,41,48,57,69,87,110,150,206,255,301,414,555,780,1027,1295,1696,2221];
+            criaGrafico(arr_dias, arr_italia, arr_alemanha, arr_espanha, arr_eua, arr_brasil );
+         }).catch(function(err) {
+             // handle error here
+             console.log("Deu eerrroo!!");
+         })
+
+         arr_eua = [1,1,6,9,11,12,15,19,22,26,30,38,41,48,57,69,87,110,150,206,255,301,414,555,780,1027,1295,1696,2221];
+         var a = moment('21/2/2020', 'DD/MM/YYYY'); // Itália, a mais antiga
+         var b = moment();
+         var dias = b.diff(a, 'days');
+         arr_dias = Array();
+         for(i = 0; i < dias; i++){
+            arr_dias[i]=i;
+         }
+         function criaGrafico(arr_dias, arr_italia, arr_alemanha, arr_espanha, arr_eua, arr_brasil ){
+            
+            var ctx = document.getElementById('myChart').getContext("2d"); // Pega Contexto
+            var chart = new Chart(ctx, {
+              type: 'line',
+              data: {
+                labels: arr_dias,
+                datasets: [{ 
+                    data: arr_brasil,
+                    label: "Brasil",
+                    borderColor: "#3e95cd",
+                    fill: false
+                  }, { 
+                    data: arr_italia,
+                    label: "Itália",
+                    borderColor: "#8e5ea2",
+                    fill: false
+                  }, { 
+                    data: arr_alemanha,
+                    label: "Alemanha",
+                    borderColor: "#3cba9f",
+                    fill: false
+                  }, { 
+                    data: arr_espanha,
+                    label: "Espanha",
+                    borderColor: "#e8c3b9",
+                    fill: false
+                  }, { 
+                    data: arr_eua,
+                    label: "EUA",
+                    borderColor: "#c45850",
+                    fill: false
+                  }
+                ]
+              },
+              options: {
+                title: {
+                  display: true,
+                  text: 'Mortes causadas pelo Coronavírus'
+                },
+                scales: {
+                   yAxes: [{
+                       type: 'logarithmic',
+                       ticks: {
+                           min: 0,
+                           max: 15000,
+                           callback: function (value, index, values) {
+                              return Number(value.toString());//pass tick values as a string into Number function
+                           },
+                        },
+                        afterBuildTicks: function (chartObj) { //Build ticks labelling as per your need
+                          chartObj.ticks = [];
+                          chartObj.ticks.push(0.1);
+                          chartObj.ticks.push(1);
+                          chartObj.ticks.push(10);
+                          chartObj.ticks.push(100);
+                          chartObj.ticks.push(1000);
+                          chartObj.ticks.push(10000);
+                        },
+                   }]
+                },
+                responsive: false, // Tenta escalar
+                maintainAspectRatio: true
+              }
+            });
+         }
+      </SCRIPT>
+   </BODY>
+
+</HTML>
