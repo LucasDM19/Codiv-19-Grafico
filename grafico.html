@@ -36,6 +36,7 @@
          var dt_alemanha = moment('09/3/2020', 'DD/MM/YYYY');
          var dt_espanha = moment('03/3/2020', 'DD/MM/YYYY');
          var dt_brasil = moment('17/3/2020', 'DD/MM/YYYY');
+         var dt_suecia = moment('11/3/2020', 'DD/MM/YYYY');
          for(x=0; x<qtd_dias; x++){
             data_x = dt_italia.add(1, 'days').format("MM-DD-YYYY");
             arr_chama[x] = d3.csv('https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_daily_reports/'+data_x+'.csv')
@@ -45,6 +46,7 @@
             arr_alemanha = Array();
             arr_espanha = Array();
             arr_brasil = Array();
+            arr_suecia = Array();
             for(j=0; j<files.length; j++){
                world_data = files[j]
                for(i=0; i<world_data.length; i++){
@@ -61,11 +63,14 @@
                  if(world_data[i]["Deaths"] != 0 && (world_data[i]["Country_Region"] == "Brazil" || world_data[i]["Country/Region"] == "Brazil")) {
                    validaPais(arr_brasil, dt_brasil);
                  }
+                 if(world_data[i]["Deaths"] != 0 && (world_data[i]["Country_Region"] == "Sweden" || world_data[i]["Country/Region"] == "Sweden")) {
+                   validaPais(arr_suecia, dt_suecia);
+                 }
                }
             }
             //console.log(arr_italia);
             arr_eua = [1,1,6,9,11,12,15,19,22,26,30,38,41,48,57,69,87,110,150,206,255,301,414,555,780,1027,1295,1696,2221];
-            criaGrafico(arr_dias, arr_italia, arr_alemanha, arr_espanha, arr_eua, arr_brasil );
+            criaGrafico(arr_dias, arr_italia, arr_alemanha, arr_espanha, arr_eua, arr_brasil, arr_suecia );
          }).catch(function(err) {
              // handle error here
              console.log("Deu eerrroo!!");
@@ -79,7 +84,7 @@
          for(i = 0; i < dias; i++){
             arr_dias[i]=i;
          }
-         function criaGrafico(arr_dias, arr_italia, arr_alemanha, arr_espanha, arr_eua, arr_brasil ){
+         function criaGrafico(arr_dias, arr_italia, arr_alemanha, arr_espanha, arr_eua, arr_brasil, arr_suecia ){
             
             var ctx = document.getElementById('myChart').getContext("2d"); // Pega Contexto
             var chart = new Chart(ctx, {
@@ -92,6 +97,11 @@
                     borderColor: "#006600",
                     fill: false
                   }, { 
+                    data: arr_suecia,
+                    label: "Suécia",
+                    borderColor: "#ffffff",
+                    fill: false
+                  }, {  
                     data: arr_italia,
                     label: "Itália",
                     borderColor: "#0000ff",
